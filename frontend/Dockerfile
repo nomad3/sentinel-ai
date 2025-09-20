@@ -3,7 +3,8 @@ WORKDIR /app
 COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* ./
 RUN if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
     elif [ -f pnpm-lock.yaml ]; then corepack enable && pnpm i --frozen-lockfile; \
-    else npm ci; fi
+    elif [ -f package-lock.json ]; then npm ci; \
+    else npm install; fi
 
 FROM node:20-slim AS builder
 WORKDIR /app
