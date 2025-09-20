@@ -1,7 +1,9 @@
+import "./globals.css";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body style={{ margin: 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
+      <body className="min-h-screen antialiased bg-white text-slate-800">
         {children}
       </body>
     </html>
