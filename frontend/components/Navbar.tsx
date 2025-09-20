@@ -17,6 +17,8 @@ export default function Navbar() {
           <Link href="/admin/overview" className="text-slate-700 hover:text-brand-600">Admin</Link>
           <Link href="/admin/incidents" className="text-slate-700 hover:text-brand-600">Incidents</Link>
           <a href="/api/docs" className="text-slate-700 hover:text-brand-600">API</a>
+          <a href="https://github.com/nomad3/sentinel-ai" target="_blank" rel="noreferrer" className="text-slate-700 hover:text-brand-600">GitHub</a>
+          <Link href="/dashboard" className="rounded-md bg-brand-600 text-white px-4 py-2 font-medium hover:bg-brand-700">Launch</Link>
         </nav>
       </div>
     </header>
