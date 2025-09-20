@@ -1,29 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import CTA from "@/components/CTA";
+import Features from "@/components/Features";
+import Footer from "@/components/Footer";
+import Hero from "@/components/Hero";
+import Navbar from "@/components/Navbar";
 
-export default function Dashboard() {
-  const [apiInfo, setApiInfo] = useState<any>(null);
-
-  useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/v1`)
-      .then((r) => r.json())
-      .then(setApiInfo)
-      .catch(() => setApiInfo({ error: "API unavailable" }));
-  }, []);
-
+export default function Landing() {
   return (
-    <div style={{ padding: 24 }}>
-      <h1>Sentinel AI Dashboard</h1>
-      <p>
-        {apiInfo
-          ? `Backend: ${apiInfo.name || apiInfo.error} v${apiInfo.version || ''}`
-          : "Loading backend info..."}
-      </p>
-      <div style={{ marginTop: 24 }}>
-        <h2>Active Threats</h2>
-        <p>Coming soon...</p>
-      </div>
+    <div className="flex min-h-screen flex-col">
+      <Navbar />
+      <main className="flex-1">
+        <Hero />
+        <Features />
+        <CTA />
+      </main>
+      <Footer />
     </div>
   );
 }
