@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Incident = {
   id: number;
@@ -9,13 +9,13 @@ type Incident = {
   status: string;
   asset_id?: number | null;
   started_at?: string | null;
-  resolved_at?: string | null;
-  created_at?: string | null;
 };
 
 export default function AdminIncidents() {
   const [items, setItems] = useState<Incident[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sev, setSev] = useState<string>("");
+  const [status, setStatus] = useState<string>("");
 
   useEffect(() => {
     const url = `${process.env.NEXT_PUBLIC_API_BASE}/api/v1/incidents/?limit=50`;
@@ -26,9 +26,35 @@ export default function AdminIncidents() {
       .finally(() => setLoading(false));
   }, []);
 
+  const filtered = useMemo(() => {
+    return items.filter((i) => (
+      (sev ? i.severity === sev : true) && (status ? i.status === status : true)
+    ));
+  }, [items, sev, status]);
+
   return (
     <div className="mx-auto max-w-7xl px-6 py-10">
       <h1 className="text-3xl font-bold">Incidents</h1>
+      <div className="mt-4 flex flex-wrap gap-4 items-center">
+        <label className="text-sm text-slate-600">Severity
+          <select value={sev} onChange={(e) => setSev(e.target.value)} className="ml-2 border rounded-md px-2 py-1 text-sm">
+            <option value="">All</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </label>
+        <label className="text-sm text-slate-600">Status
+          <select value={status} onChange={(e) => setStatus(e.target.value)} className="ml-2 border rounded-md px-2 py-1 text-sm">
+            <option value="">All</option>
+            <option value="open">Open</option>
+            <option value="contained">Contained</option>
+            <option value="closed">Closed</option>
+          </select>
+        </label>
+        <span className="text-sm text-slate-500">{filtered.length} shown</span>
+      </div>
       <div className="mt-6 overflow-x-auto rounded-xl border border-slate-200">
         <table className="min-w-full text-sm">
           <thead>
@@ -44,10 +70,10 @@ export default function AdminIncidents() {
           <tbody>
             {loading ? (
               <tr><td className="px-4 py-3" colSpan={6}>Loading...</td></tr>
-            ) : items.length === 0 ? (
+            ) : filtered.length === 0 ? (
               <tr><td className="px-4 py-3" colSpan={6}>No incidents</td></tr>
             ) : (
-              items.map((i) => (
+              filtered.map((i) => (
                 <tr key={i.id} className="border-t">
                   <td className="px-4 py-3">{i.id}</td>
                   <td className="px-4 py-3">{i.title}</td>
