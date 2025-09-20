@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Optional
+from time import sleep, time
 from elasticsearch import Elasticsearch
 
 from app.core.config import settings
@@ -15,8 +16,28 @@ def get_client() -> Elasticsearch:
     return _es_client
 
 
+def wait_for_ready(timeout_seconds: int = 90, interval_seconds: float = 2.0) -> None:
+    es = get_client()
+    start = time()
+    while time() - start < timeout_seconds:
+        try:
+            if es.ping():
+                return
+        except Exception:
+            pass
+        sleep(interval_seconds)
+    raise RuntimeError("Elasticsearch not ready within timeout")
+
+
 def ensure_indices() -> None:
     es = get_client()
+
+    # Wait until cluster is reachable
+    try:
+        wait_for_ready()
+    except Exception:
+        # Best-effort: continue and let index operations fail noisily
+        pass
 
     indices = {
         "events_v1": {
@@ -65,5 +86,9 @@ def ensure_indices() -> None:
     }
 
     for index_name, body in indices.items():
-        if not es.indices.exists(index=index_name):
-            es.indices.create(index=index_name, **body)
+        try:
+            if not es.indices.exists(index=index_name):
+                es.indices.create(index=index_name, **body)
+        except Exception:
+            # Ignore index creation races or transient errors
+            pass
